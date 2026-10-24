@@ -1,10 +1,22 @@
-# BimTools.MEPSupport
+# BimTools.MEPSupport (Native)
 
 Native Revit add-in port of [BimTools.MEPsupport](https://github.com/amdghedy/BimTools.MEPsupport).
 
 **Ribbon location:** Revit tab **`BIM TOOLS`** → panel **`MEP Tools`** → **Hanger Generator**
 
 All hanger generation functions, option order, and behaviour are preserved from the source project (duct / pipe / cable tray hangers, clevis, bend, base, rectangular variants).
+
+## Quick start
+
+```bat
+git clone https://github.com/amdghedy/BimTools-MEPSupport-Native.git
+cd BimTools-MEPSupport-Native
+powershell -ExecutionPolicy Bypass -File scripts\sync_commands_from_source.ps1
+set REVIT_API_PATH=C:\Program Files\Autodesk\Revit 2024
+dotnet build BimTools.MEPSupport.csproj -c Release
+```
+
+The sync script pulls command sources + `MainForm` + icon from the original repo (identical behaviour). Ribbon registration in this repo targets **BIM TOOLS** / **MEP Tools** only.
 
 ## Features
 
@@ -20,83 +32,34 @@ All hanger generation functions, option order, and behaviour are preserved from 
 | CableTray | `CableTrayHangerCommand` | Cable tray hangers |
 | Cable_TrayREC | `Cable_TrayREC` | Rectangular cable tray hangers |
 
-Entry command: `Hangerduct.CreateHanger` (opens `MainForm`, then dispatches by selected option).
+Entry: `Hangerduct.CreateHanger` → `MainForm` → dispatch by `SelectedOption` (order unchanged).
+
+## Host registration (this port)
+
+| Item | Value |
+|------|--------|
+| Tab | **BIM TOOLS** (create if missing; reuse if present) |
+| Panel | **MEP Tools** (create if missing; reuse if present) |
+| Button | `HAN_But` / **Hanger Generator** (skip if already present) |
+| Class | `Hangerduct.CreateHanger` |
+| Add-in | `Deploy/BimTools.MEPSupport.addin` → `Hangerduct.Extrenal_application` |
 
 ## Requirements
 
-- Autodesk Revit 2020–2026 (API compatible; default build path targets 2024)
+- Autodesk Revit 2020–2026 (default build path: 2024)
 - .NET Framework 4.8
 - Windows x64
 
-## Project tree
-
-```
-BimTools.MEPSupport/
-├── BimTools.MEPSupport.sln
-├── BimTools.MEPSupport.csproj
-├── README.md
-├── Deploy/
-│   └── BimTools.MEPSupport.addin
-├── Resources/
-│   └── AGG.png
-└── src/
-    ├── Hangerduct/          # Commands, filters, MainForm, External Application
-    └── Properties/          # AssemblyInfo, Resources
-```
-
-## Build
-
-```bat
-REM Optional: set Revit API path (default: C:\Program Files\Autodesk\Revit 2024)
-set REVIT_API_PATH=C:\Program Files\Autodesk\Revit 2024
-
-dotnet build BimTools.MEPSupport.csproj -c Release
-```
-
-Or in Visual Studio: open `BimTools.MEPSupport.sln`, set configuration to Release, build.
-
-Output: `bin\Release\Hangerduct.dll` (+ `.addin` copy).
-
-### Validate references
-
-```bat
-dir "%REVIT_API_PATH%\RevitAPI.dll"
-dir "%REVIT_API_PATH%\RevitAPIUI.dll"
-```
-
 ## Install
 
-1. Build Release.
-2. Copy `Hangerduct.dll` and `Deploy\BimTools.MEPSupport.addin` to one of:
-   - `%APPDATA%\Autodesk\Revit\Addins\2024\`
-   - or a folder referenced by the `.addin` `Assembly` path (use full path in `.addin` if preferred).
-3. Edit `.addin` if the DLL is not beside the addin file:
-   ```xml
-   <Assembly>C:\Path\To\Hangerduct.dll</Assembly>
-   ```
-4. Restart Revit.
-5. Open tab **BIM TOOLS** → panel **MEP Tools** → **Hanger Generator**.
-
-### Portable install (no admin)
-
-User Addins folder only (`%APPDATA%\Autodesk\Revit\Addins\<YEAR>\`).
+1. Build Release (`Hangerduct.dll` in `bin\Release\`).
+2. Copy `Hangerduct.dll` + `Deploy\BimTools.MEPSupport.addin` to `%APPDATA%\Autodesk\Revit\Addins\<YEAR>\`.
+3. Restart Revit → **BIM TOOLS** → **MEP Tools** → **Hanger Generator**.
 
 ## Uninstall
 
-Delete `BimTools.MEPSupport.addin` and `Hangerduct.dll` from the Addins folder, restart Revit.
+Remove the `.addin` and `Hangerduct.dll` from the Addins folder; restart Revit.
 
-## Host registration notes
+## Origin
 
-- Tab name: **`BIM TOOLS`** (created if missing; existing tab reused).
-- Panel name: **`MEP Tools`** (created if missing; existing panel reused).
-- Button id: `HAN_But` — skipped if already present (no duplicates).
-
-## Limitations
-
-- Source logic was recovered from a decompiled tree; UI layout relies on embedded `MainForm.resx`.
-- Family files used by hangers must be available as in the original workflow.
-- Contextual help points to the original AG Hanger Generator help path if present.
-
-## License / origin
-
-Derived from `amdghedy/BimTools.MEPsupport`. Behaviour intentionally unchanged; only project packaging and ribbon host registration updated for **BIM TOOLS**.
+Derived from `amdghedy/BimTools.MEPsupport`. Behaviour intentionally unchanged; packaging and ribbon host registration updated for **BIM TOOLS**.
