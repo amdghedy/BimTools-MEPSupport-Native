@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>BIM TOOLS — MEP Support (Hanger Generator)</Name>
+    <Assembly>Hangerduct.dll</Assembly>
+    <AddInId>C3ABF959-65D5-4716-A48C-B398FE3C1B2E</AddInId>
+    <FullClassName>Hangerduct.Extrenal_application</FullClassName>
+    <VendorId>BIMTOOLS</VendorId>
+    <VendorDescription>BIM TOOLS | MEP Support Hanger Generator</VendorDescription>
+  </AddIn>
+</RevitAddIns>
