@@ -1,0 +1,119 @@
+name: Build and publish MEP Support releases
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'Release/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Revit ${{ matrix.revit }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        revit: ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Install .NET Framework 4.8 targeting pack
+        if: matrix.revit < 2025
+        shell: pwsh
+        run: |
+          choco install netfx-4.8-devpack --yes --no-progress
+      - name: Build version-specific add-in
+        shell: pwsh
+        run: |
+          $version = "${{ matrix.revit }}"
+          dotnet restore BimTools.MEPSupport.csproj -p:RevitVersion=$version
+          if ($LASTEXITCODE -ne 0) { throw "Restore failed for Revit $version." }
+          dotnet build BimTools.MEPSupport.csproj --configuration Release --no-restore -p:RevitVersion=$version
+          if ($LASTEXITCODE -ne 0) { throw "Build failed for Revit $version." }
+          $out = Join-Path $PWD "bin/Release/$version"
+          $target = Join-Path $PWD "RevitVersions/$version"
+          New-Item -ItemType Directory -Force -Path $target | Out-Null
+          if (!(Test-Path (Join-Path $out 'Hangerduct.dll'))) { throw "Hangerduct.dll missing for Revit $version." }
+          Copy-Item (Join-Path $out 'Hangerduct.dll') $target
+          Copy-Item 'Deploy/BimTools.MEPSupport.addin' (Join-Path $target 'BimTools.MEPSupport.addin')
+          @"
+          Package: BimTools MEP Support for Revit $version
+          Build commit: ${{ github.sha }}
+          Assembly: Hangerduct.dll
+          Manifest: BimTools.MEPSupport.addin
+          Target Revit: $version
+          "@ | Set-Content (Join-Path $target 'BUILD-INFO.txt')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MEPSupport-Revit-${{ matrix.revit }}
+          path: RevitVersions/${{ matrix.revit }}/*
+          if-no-files-found: error
+          retention-days: 7
+
+  package:
+    name: Assemble release folder and installer
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MEPSupport-Revit-*
+          path: Release/RevitVersions
+          merge-multiple: false
+      - name: Normalize version folders and validate all builds
+        shell: pwsh
+        run: |
+          $root = Join-Path $PWD 'Release/RevitVersions'
+          foreach ($version in @('2020','2021','2022','2023','2024','2025','2026','2027')) {
+            $artifact = Join-Path $root "MEPSupport-Revit-$version"
+            $target = Join-Path $root $version
+            if (!(Test-Path (Join-Path $artifact 'Hangerduct.dll')) -or !(Test-Path (Join-Path $artifact 'BimTools.MEPSupport.addin'))) {
+              throw "Revit $version package is incomplete."
+            }
+            Move-Item $artifact $target
+          }
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed.' }
+      - name: Compile installer
+        shell: pwsh
+        run: |
+          $compiler = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (!(Test-Path $compiler)) { $compiler = "$env:ProgramFiles\Inno Setup 6\ISCC.exe" }
+          if (!(Test-Path $compiler)) { throw 'ISCC.exe was not found.' }
+          & $compiler 'installer/MEPSupport.iss'
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed.' }
+          if (!(Test-Path 'Release/MEPSupport-Installer.exe')) { throw 'Installer EXE was not generated.' }
+      - name: Write release index
+        shell: pwsh
+        run: |
+          @"
+          # BimTools MEP Support — release package
+
+          Installer: `MEPSupport-Installer.exe`
+
+          Separate compiled `Hangerduct.dll` and manifest files are provided for Revit 2020–2027 in `RevitVersions/<year>/`.
+          Built from commit ${{ github.sha }} after all eight build jobs succeeded.
+          Compilation does not replace smoke-testing inside each installed Revit version.
+          "@ | Set-Content 'Release/README.md'
+      - name: Commit release package to main
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Release
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'Release package is already current.'; exit 0 }
+          git commit -m "chore(release): publish MEP Support for Revit 2020-2027 [skip ci]"
+          git push origin HEAD:main
