@@ -20,13 +20,28 @@ jobs:
         revit: ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027']
     steps:
       - uses: actions/checkout@v4
-      - name: Restore required command sources from upstream
+      - name: Validate required source files
         shell: pwsh
         run: |
-          ./scripts/sync_commands_from_source.ps1
-          if ($LASTEXITCODE -ne 0) { throw 'Source synchronization failed.' }
-          $required = @('src/Hangerduct/MainForm.cs','src/Hangerduct/MainForm.resx','src/Hangerduct/PipeHangerCommand.cs','src/Hangerduct/CableTrayHangerCommand.cs','Resources/AGG.png')
-          foreach ($file in $required) { if (!(Test-Path $file)) { throw "Required source file missing after synchronization: $file" } }
+          $required = @(
+            'src/Hangerduct/MainForm.cs',
+            'src/Hangerduct/MainForm.resx',
+            'src/Hangerduct/PipeHangerCommand.cs',
+            'src/Hangerduct/CableTrayHangerCommand.cs',
+            'src/Hangerduct/DuctHangerCommand.cs',
+            'src/Hangerduct/Cable_TrayREC.cs',
+            'src/Hangerduct/DuctHangerCommandREC.cs',
+            'src/Hangerduct/HangerBase.cs',
+            'src/Hangerduct/PipeHangerBEND.cs',
+            'src/Hangerduct/PipeHangerclevis.cs',
+            'src/Hangerduct/ductCommandB.cs',
+            'Resources/AGG.png'
+          )
+          $missing = @($required | Where-Object { !(Test-Path $_) })
+          if ($missing.Count -gt 0) {
+            Write-Error ("Required project sources are missing from the repository: " + ($missing -join ", "))
+            exit 1
+          }
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
