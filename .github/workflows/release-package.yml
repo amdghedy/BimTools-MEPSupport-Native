@@ -20,6 +20,13 @@ jobs:
         revit: ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027']
     steps:
       - uses: actions/checkout@v4
+      - name: Restore required command sources from upstream
+        shell: pwsh
+        run: |
+          ./scripts/sync_commands_from_source.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Source synchronization failed.' }
+          $required = @('src/Hangerduct/MainForm.cs','src/Hangerduct/MainForm.resx','src/Hangerduct/PipeHangerCommand.cs','src/Hangerduct/CableTrayHangerCommand.cs','Resources/AGG.png')
+          foreach ($file in $required) { if (!(Test-Path $file)) { throw "Required source file missing after synchronization: $file" } }
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
