@@ -34,13 +34,19 @@ Name: "rv2026"; Description: "Revit 2026"; Types: full custom
 Name: "rv2027"; Description: "Revit 2027"; Types: full custom
 
 [Files]
-#define AddVersionFiles(V, C) Source: "..\Release\RevitVersions\" + V + "\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\" + V; Components: C; Flags: ignoreversion; Source: "..\Release\RevitVersions\" + V + "\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\" + V; Components: C; Flags: ignoreversion
-
-AddVersionFiles("2020", "rv2020")
-AddVersionFiles("2021", "rv2021")
-AddVersionFiles("2022", "rv2022")
-AddVersionFiles("2023", "rv2023")
-AddVersionFiles("2024", "rv2024")
-AddVersionFiles("2025", "rv2025")
-AddVersionFiles("2026", "rv2026")
-AddVersionFiles("2027", "rv2027")
+Source: "..\Release\RevitVersions\2020\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2020"; Components: rv2020; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2020\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2020"; Components: rv2020; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2021\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2021"; Components: rv2021; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2021\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2021"; Components: rv2021; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2022\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2022"; Components: rv2022; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2022\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2022"; Components: rv2022; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2023\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2023"; Components: rv2023; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2023\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2023"; Components: rv2023; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2024\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2024"; Components: rv2024; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2024\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2024"; Components: rv2024; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2025\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2025"; Components: rv2025; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2025\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2025"; Components: rv2025; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2026\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2026"; Components: rv2026; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2026\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2026"; Components: rv2026; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2027\Hangerduct.dll"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2027"; Components: rv2027; Flags: ignoreversion
+Source: "..\Release\RevitVersions\2027\BimTools.MEPSupport.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2027"; Components: rv2027; Flags: ignoreversion
