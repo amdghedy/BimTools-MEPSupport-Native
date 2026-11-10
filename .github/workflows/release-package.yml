@@ -20,7 +20,7 @@ jobs:
         revit: ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027']
     steps:
       - uses: actions/checkout@v4
-      - name: Validate current project inputs
+      - name: Validate complete source set
         shell: pwsh
         run: |
           $required = @(
@@ -28,11 +28,22 @@ jobs:
             'Deploy/BimTools.MEPSupport.addin',
             'src/Hangerduct/Extrenal_application.cs',
             'src/Hangerduct/CreateHanger.cs',
-            'src/Properties/AssemblyInfo.cs'
+            'src/Hangerduct/CableTrayHangerCommand.cs',
+            'src/Hangerduct/Cable_TrayREC.cs',
+            'src/Hangerduct/DuctHangerCommand.cs',
+            'src/Hangerduct/DuctHangerCommandREC.cs',
+            'src/Hangerduct/HangerBase.cs',
+            'src/Hangerduct/MainForm.cs',
+            'src/Hangerduct/PipeHangerBEND.cs',
+            'src/Hangerduct/PipeHangerCommand.cs',
+            'src/Hangerduct/PipeHangerclevis.cs',
+            'src/Hangerduct/ductCommandB.cs',
+            'src/Properties/AssemblyInfo.cs',
+            'src/Hangerduct/MainForm.resx'
           )
           $missing = @($required | Where-Object { !(Test-Path $_) })
           if ($missing.Count -gt 0) {
-            Write-Error ("Required project inputs are missing: " + ($missing -join ", "))
+            Write-Error ("Cannot build a complete add-in. Restore these missing source files first: " + ($missing -join ", "))
             exit 1
           }
       - uses: actions/setup-dotnet@v4
