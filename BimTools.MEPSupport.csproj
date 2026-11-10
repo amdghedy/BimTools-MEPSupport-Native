@@ -35,14 +35,14 @@
     <Compile Include="src\Properties\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\AGG.png">
+    <EmbeddedResource Include="Resources\AGG.png" Condition="Exists('Resources\AGG.png')">
       <LogicalName>Hangerduct.Resources.AGG.png</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="src\Hangerduct\MainForm.resx">
+    <EmbeddedResource Include="src\Hangerduct\MainForm.resx" Condition="Exists('src\Hangerduct\MainForm.resx')">
       <DependentUpon>MainForm.cs</DependentUpon>
       <LogicalName>Hangerduct.MainForm.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="src\Properties\Resources.resx">
+    <EmbeddedResource Include="src\Properties\Resources.resx" Condition="Exists('src\Properties\Resources.resx')">
       <LogicalName>Hangerduct.Properties.Resources.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
